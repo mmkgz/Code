@@ -1,0 +1,407 @@
+<!DOCTYPE html>
+<html>
+    <style>
+        input#font-size::-webkit-inner-spin-button, input[type=number]::-webkit-outer-spin-button {opacity: 1;}
+        button.codeTab{
+            background-color: rgb(125, 125, 125);
+        }
+        button.codeTabAct{
+            background-color: rgb(65, 65, 65);
+        }
+        button{
+            border-radius: 15%;
+        }
+        img:hover{
+            background-color: rgba(0, 0, 0, 0.25);
+        }
+        img:active{
+            background-color: rgba(0, 0, 0, 0.55);
+        }
+        button:hover{
+            background-color: rgba(0, 0, 0, 0.25);
+        }
+        button:active{
+            background-color: rgba(0, 0, 0, 0.55);
+        }
+        
+        button.codeTab:hover,button.codeTabAct:hover{
+            background-color: rgba(85, 85, 85, 0.295);
+        }
+        button#deployer:hover{
+            background-color: rgba(0, 0, 0, 1);
+        }
+        
+    </style>
+    <title id="title"></title>
+    <div id="container" style="position:absolute;left:0;right:0;top:0;height:1000vh;background-color:lightgrey;text-align:center;">
+        <div id="home">
+            <div style="position:fixed;left:0;right:0;top:0;z-index: 1;">
+            <h1 style="background-color: rgb(156, 156, 156);">Norwood Web Project Designer</h1>
+            <div style='position:absolute;left:0;right:0;height:80px;background-color:rgb(136, 136, 136)'>
+                <button onclick='newProject()' style='position:relative;width:68px;height:68px;top:6px;font-size:3em;margin-left:3px;margin-right:3px;'>+</button>
+                <button id="modeSwitch" onclick='switchMode()' style='position:relative;width:68px;height:68px;top:6px;font-size:3em;margin-left:3px;margin-right:3px;'>X</button>
+            </div></div>
+            <br><br><br><br><br>
+            <div id='r' style='z-index:2;position:absolute;display:none;left:50%;width:538px;transform:translateX(-50%);background-color:rgb(120,120,120);'>
+                <button onclick='exitNewProject(1)'style='position:absolute;right:3px;top:3px;width:45px;height:45px;'>X</button>
+                <h2>Create New Project</h2>
+                <label for='nameIn'>Title: </label>
+                <input onchange='updateLabel(0);' id='nameIn' type='text'>
+                <br><br><button onclick="createNewProject();">Create</button><br><p></p>
+            </div>
+            <br><br><br><br><br><br><br><br><br>
+            <div id="projects" style="height:300px">
+                
+            </div>
+        </div>
+
+
+
+
+        <div id="project" style="display:none;">
+            <div id="top-bar" style="position:absolute;left:0;right:0;top:0;height:60px;background-color: rgb(92, 92, 92);">
+                <input id="titleIn" onchange="updateTitle()" type="text" style="position:absolute;top:50%;transform: translateY(-50%);left:60px;height:55px;background-color:transparent;border:none;font-size: 30px;width:80%">
+                <button id= 'home'onclick='home()'style="position:absolute;background-color: transparent;left:5px;top:50%;transform: translateY(-50%);border:none"><img src="https://upload.wikimedia.org/wikipedia/commons/thumb/3/34/Home-icon.svg/2048px-Home-icon.svg.png" style="width:30px;height:30px"></button>
+            </div>
+            <div id="top-navigation"style="position:absolute;left:0;right:0;top:60px;height:75px;background-color: rgb(125, 125, 125);">
+                <button id='deployer'onclick="deploy()" style="position:absolute;left:20px;top:12px;font-size: xx-large;width:120px;height:50px;background-color: rgb(0, 220, 0);">Run</button>
+                <input onchange='updateFont()'type="number" id="font-size" style="position:absolute;height:50px;border:none;font-size: 30px;width:60px;left:160px;top:12px;" value='20'>
+                <button id='htmlbut'onclick='setCodeTab("html")'id="htmlButton" style="position:absolute;left:350px;top:12px;font-size: xx-large;width:120px;height:50px;"class='codeTab'>HTML</button>
+                <button id='jsbut'onclick='setCodeTab("js")'id="jsButton" style="position:absolute;left:490px;top:12px;font-size: xx-large;width:120px;height:50px;"class='codeTab'>JS</button>
+                <button id='cssbut'onclick='setCodeTab("css")'id="cssButton" style="position:absolute;left:630px;top:12px;font-size: xx-large;width:120px;height:50px;"class='codeTab'>CSS</button>
+                <button id='save'onclick="saveAll()" style="position:absolute;left:860px;top:12px;font-size: xx-large;width:120px;height:50px;background-color: rgb(71, 48, 204);">Save</button>
+            </div>
+            <textarea id="textArea" style="padding-left: 4px;position:absolute;left:3%;right:3%;top:150px;bottom:20px;font-size:20px;text-align: left;" ></textarea>
+        </div>
+    </div>
+
+
+
+    <script>
+        var projData;
+        var mode='open';
+        var datas = [];
+        var porser = [];
+        var currentCodeTab = 'html';
+        var html='<div id="container">\n\n\n\n</div>',js='',css='';
+        //var darkmode = localStorage.getItem('nrwdweb_darkmode');
+       // if(darkmode==null){darkmode=false;localStorage.setItem("nrwdweb_darkmode",false);}
+        
+        var r = document.getElementById('r');
+        var titleIn=document.getElementById('titleIn');
+        var opened=-1;
+        var title = document.getElementById('title');
+        var div = document.getElementById("container");
+        var inputTitle=document.getElementById('nameIn');
+        var state = 0;
+        var textArea = document.getElementById('textArea');
+        
+        function porse(){if(projData!=null){
+
+            porser=projData.split('+++++');
+            
+            for(var i=0;i<porser.length;i++){
+                datas[i]=porser[i].split('^^^^^');
+            }}
+        }
+            
+            function rel(){ projData= localStorage.getItem('NorwoodCodeWebData_Project');porse()}
+        rel();
+
+            textArea.addEventListener('keydown', function(e) {
+  if (e.key == 'Tab') {
+    e.preventDefault();
+    var start = this.selectionStart;
+    var end = this.selectionEnd;
+
+    // set textarea value to: text before caret + tab + text after caret
+    this.value = this.value.substring(0, start) +
+      "\t" + this.value.substring(end);
+
+    // put caret at right position again
+    this.selectionStart =
+      this.selectionEnd = start + 1;
+  }
+  if (e.key == '{') {
+    e.preventDefault();
+    var start = this.selectionStart;
+    var end = this.selectionEnd;
+
+    // set textarea value to: text before caret + tab + text after caret
+    this.value = this.value.substring(0, start) +
+      "{}" + this.value.substring(end);
+
+    // put caret at right position again
+    this.selectionStart =
+      this.selectionEnd = start + 1;
+  }
+  if (e.key == '<') {
+    e.preventDefault();
+    var start = this.selectionStart;
+    var end = this.selectionEnd;
+
+    // set textarea value to: text before caret + tab + text after caret
+    this.value = this.value.substring(0, start) +
+      "<>" + this.value.substring(end);
+
+    // put caret at right position again
+    this.selectionStart =
+      this.selectionEnd = start + 1;
+  }
+  if (e.key == '[') {
+    e.preventDefault();
+    var start = this.selectionStart;
+    var end = this.selectionEnd;
+
+    // set textarea value to: text before caret + tab + text after caret
+    this.value = this.value.substring(0, start) +
+      "[]" + this.value.substring(end);
+
+    // put caret at right position again
+    this.selectionStart =
+      this.selectionEnd = start + 1;
+  }
+  if (e.key == '"') {
+    e.preventDefault();
+    var start = this.selectionStart;
+    var end = this.selectionEnd;
+
+    // set textarea value to: text before caret + tab + text after caret
+    this.value = this.value.substring(0, start) +
+      '""' + this.value.substring(end);
+
+    // put caret at right position again
+    this.selectionStart =
+      this.selectionEnd = start + 1;
+  }
+  if (e.key == '\'') {
+    e.preventDefault();
+    var start = this.selectionStart;
+    var end = this.selectionEnd;
+
+    // set textarea value to: text before caret + tab + text after caret
+    this.value = this.value.substring(0, start) +
+      "\'\'" + this.value.substring(end);
+
+    // put caret at right position again
+    this.selectionStart =
+      this.selectionEnd = start + 1;
+  }
+  if (e.key == '(') {
+    e.preventDefault();
+    var start = this.selectionStart;
+    var end = this.selectionEnd;
+
+    // set textarea value to: text before caret + tab + text after caret
+    this.value = this.value.substring(0, start) +
+      "()" + this.value.substring(end);
+
+    // put caret at right position again
+    this.selectionStart =
+      this.selectionEnd = start + 1;
+  }
+});
+function listPorser(){
+            for(var i=0;i<porser.length;i++)console.log(porser[i]);
+        }
+        function updateFont(){
+           
+            textArea.style.fontSize=document.getElementById('font-size').value+'px';
+        }
+       
+        function saveAll(){
+            save(currentCodeTab);
+            var porser=projData.split('+++++');
+            
+            for(var i=0;i<porser.length;i++){
+                datas[i]=porser[i].split('^^^^^');
+            }
+            
+            var projTitle = titleIn.value;
+            var projDate = new Date().toDateString();
+            var projHTML = html;
+            var projJS = js;
+            var projCSS = css;
+            var projectData = [projTitle,projDate,projHTML,projJS,projCSS].join("^^^^^");
+            porser[opened]=projectData;
+            localStorage.setItem("NorwoodCodeWebData_Project",porser.join("+++++"));
+        }
+        function setCodeTab(mode,saver=true){
+            if(saver)save(currentCodeTab);
+            switch(mode){
+                case 'html':
+                    textArea.value=html;
+                    document.getElementById('htmlbut').classList.add("codeTabAct");
+                    document.getElementById('cssbut').classList.remove("codeTabAct");
+                    document.getElementById('jsbut').classList.remove("codeTabAct");
+                    break;
+                case 'js':
+                    textArea.value=js;
+                    document.getElementById('htmlbut').classList.remove("codeTabAct");
+                    document.getElementById('cssbut').classList.remove("codeTabAct");
+                    document.getElementById('jsbut').classList.add("codeTabAct");
+                    break;
+                case 'css':
+                    textArea.value=css;
+                    document.getElementById('htmlbut').classList.remove("codeTabAct");
+                    document.getElementById('cssbut').classList.add("codeTabAct");
+                    document.getElementById('jsbut').classList.remove("codeTabAct");
+                    break;
+            }
+            currentCodeTab=mode;
+        }
+        function home(){rel();
+            saveAll();
+            loadState(0);
+        }
+        
+        function displayProjects(){rel();
+        if(projData!=null){
+            projectse.innerHTML='';
+            var porser=projData.split('+++++');
+            
+            for(var i=0;i<porser.length;i++){
+                datas[i]=porser[i].split('^^^^^');
+            }
+            for(var i=0;i<porser.length;i++){
+                var di = document.createElement('div');
+                di.id="pro"+i;
+                di.style="position:relative;margin-top:20px;left:50%;transform: translateX(-50%);width:500px;background-color: rgb(65,65,65);";
+                di.innerHTML='<h1 style="color:floralwhite">'+datas[i][0]+'</h1><h2 style="color:floralwhite">Last Opened: '+datas[i][1]+'</h2><button id="opens'+i+'" onclick="openrl('+i+')" style="width:120px;height:80px;">Open</button><br><p></p><br><br><br><br><br>';
+                projectse.appendChild(di);
+            }
+        }
+        }
+        function save(code){
+            switch(currentCodeTab){
+                case 'html':
+                    html=textArea.value;
+                    
+                    break;
+                case 'js':
+                    js=textArea.value;
+
+                    break;
+                case 'css':
+                    css=textArea.value;
+
+                    break;
+            }
+        }
+        function loadState(index){
+            porse();
+            var home=document.getElementById('home');
+            home.style.display='none';
+            var project = document.getElementById('project');
+            project.style.display='none';
+            rel();
+            switch(index){
+                case 0:
+                    home.style.display='block';
+                    title.innerHTML='Norwood Web Project Designer';
+                    html='<div id="container">\n\n\n\n</div>';js='';css='';
+                    displayProjects();
+                    break;
+                case 1:
+                    
+                    project.style.display='block';
+                    title.innerHTML='Norwood Web Project Designer - Editing '+datas[opened][0];
+                    setCodeTab('html',false);
+                    break;
+                case 2:
+
+                    
+            }
+        }
+        
+        if(projData==null)localStorage.setItem("NorwoodCodeWebData_Project","First Project^^^^^"+new Date().toDateString()+"^^^^^<div id='container'>\n\n\n\n</div>^^^^^^^^^^");
+        function deploy(){
+            save(currentCodeTab);
+            var win = window.open();
+            win.document.write('<!DOCTYPE><html><style>'+css+'</style>\n'+html+'\n<script>'+js+'\u003C/script\u003E</html>');
+            const originalError = win.console.error;
+
+
+            win.console.error = function(error) {
+                console.log(originalError);
+            };
+        }
+        var projectse = document.getElementById('projects');
+        
+        //<div id="pro" style="position:absolute;margin-top:20px;left:50%;transform: translateX(-50%);width:500px;background-color: rgb(65,65,65);"><h1 style="color:floralwhite">Project</h1><h2 style="color:floralwhite">Last Opened: </h2><button style="width:120px;height:80px;">Open</button><br><p></p></div>
+        
+        function updateTitle(){
+
+        }
+        
+        function openrl(i){
+            scrollTo(0,0);
+            rel();
+            var title=datas[i][0];
+            titleIn.value=title;
+
+
+            html=datas[i][2];
+            js=datas[i][3];
+            css=datas[i][4];
+            //setCodeTab(currentCodeTab,false);
+            opened=i;
+            loadState(1);
+        }
+        
+        
+            
+        
+        function newProject(){inputTitle.value=localStorage.getItem('nrwdweb_npdata_title');r.style.display='block';}
+        function createNewProject(){localStorage.setItem('nrwdweb_npdata_title','');rel();
+            var projTitle=inputTitle.value;
+            var projTime = new Date().toDateString();
+            var projectData = [projTitle,projTime,html,'',''].join("^^^^^");
+            
+            localStorage.setItem("NorwoodCodeWebData_Project",porser.join("+++++")+'+++++'+projectData);
+            rel();
+            displayProjects();//console.log(porser)
+            var openConfirm = confirm("Open Project Now?");
+            
+            if(openConfirm)openrl(porser.length-1);
+            else exitNewProject();
+        }
+        function exitNewProject(id=0){r.style.display='none';if(id!=0)localStorage.setItem('nrwdweb_npdata_title',inputTitle.value);}
+        exitNewProject();
+        function updateLabel(i=-1){var namen=document.getElementById('nameIn');if(namen.value=='')namen.value='Untitled Project';}
+        var modeSwitch = document.getElementById('modeSwitch');
+        
+        function deleteProject(e){
+            
+            if(!confirm("Are you sure you would like to delete this project?"))return;
+            if(!confirm("Are you ONE-HUNDRED percent sure?"))return;
+            console.log('deleting project: '+e); 
+            var me = porser;
+            me.splice(e,1);
+            localStorage.setItem('NorwoodCodeWebData_Project',me.join('+++++'));
+            rel();
+            displayProjects();
+            switchMode('del');
+        }
+        function switchMode(re=mode){rel();
+            
+            if(re=='open'){re='del';modeSwitch.style.backgroundColor='rgb(90,90,90)';
+            for(var i =0;i<porser.length;i++){
+                var c = document.getElementById('opens'+i);
+                c.style.backgroundColor='red';
+                c.textContent='DELETE';
+                c.onclick=function(){deleteProject(parseInt(this.id.substring(5)))};
+            }
+        }
+            else{re='open';modeSwitch.style.backgroundColor='white';
+            for(var i =0;i<porser.length;i++){
+                var c = document.getElementById('opens'+i);
+                c.style.backgroundColor='white';
+                c.textContent='Open';
+                c.onclick=function(){openrl(parseInt(this.id.substring(5)))};
+            }
+        }
+        }
+        loadState(0);
+    </script>
+</html>
